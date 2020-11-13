@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ../ex1_11
+    volumes:
+      - "./logs.txt:/app/logs.txt"
+    ports:
+      - "8000:8000"
+    environment:
+      - "FRONT_URL=http://192.168.122.67:5000"
+      - "REDIS=redis"
+    container_name: "backend"
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ../ex1_10
+    ports:
+      - "5000:5000"
+    environment:
+      - "API_URL=http://192.168.122.67:8000"
+    container_name: "frontend"
+
+  redis:
+    image: redis
+    container_name: "redis"

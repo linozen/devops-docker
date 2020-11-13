@@ -1,0 +1,8 @@
+version: "3.5"
+
+services:
+  first_pull_exercise:
+    image: devopsdockeruh/first_volume_exercise
+    build: .
+    volumes:
+      - ./logs.txt:/usr/app/logs.txt
