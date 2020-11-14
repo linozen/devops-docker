@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: "reverse_proxy"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    depends_on:
+      - frontend
+
+  backend:
+    build:
+      context: ../ex1_11
+    container_name: "backend"
+    volumes:
+      - "./logs.txt:/home/node/logs.txt"
+    environment:
+      - "REDIS=redis"
+      - "DB_USERNAME=postgres"
+      - "DB_PASSWORD=example"
+      - "DB_HOST=postgres"
+    depends_on:
+      - redis
+      - postgres
+
+  frontend:
+    build:
+      context: ../ex1_10
+    container_name: "frontend"
+    environment:
+      # CORS Note
+      # to make it work outside my Debian VM
+      # - API_URL=http://192.168.122.67/api
+      # to make it work inside
+      - API_URL=http://localhost/api
+    depends_on:
+      - backend
+
+  redis:
+    container_name: "cache"
+    image: redis:alpine
+
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: example
+    container_name: "db"
+    volumes:
+      - ./database:/var/lib/postgresql/data
